@@ -67,7 +67,7 @@ const Hero: React.FC<HeroProps> = ({ onDownloadClick }) => {
                             className="w-full sm:w-auto px-8 py-3.5 text-lg font-bold text-white bg-rose-700 rounded-full hover:bg-rose-600 transition duration-300 shadow-2xl shadow-rose-400/50 transform hover:-translate-y-1 flex items-center justify-center"
                         >
                             <Download className="w-5 h-5 mr-2" />
-                            Download Outfit Swap 
+                            Download AI-Outfit Swap 
                         </button>
                         
                         
@@ -84,7 +84,7 @@ const Hero: React.FC<HeroProps> = ({ onDownloadClick }) => {
                
                 <div 
                     ref={imageContainerRef}
-                    className="flex justify-center lg:justify-end relative order-1 lg:order-2 perspective-1000" // Added perspective for 3D effect
+                    className="flex justify-center lg:justify-end relative order-1 lg:order-2 perspective-1000" 
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
                 >

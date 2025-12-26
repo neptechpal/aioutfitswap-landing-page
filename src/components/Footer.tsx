@@ -9,12 +9,11 @@ const Footer: React.FC<FooterProps> = ({ onDownloadClick }) => {
     const navigation = {
         product: [
             { name: 'How It Works', href: '/#how-it-works' },
-            { name: 'Features', href: '/#features' },
+            { name: 'Features', href: '/#featuresSection' },
             { name: 'Testimonials', href: '/#testimonials' },
         ],
         company: [
             { name: 'Contact Us', href: '/contact-us' },
-            { name: 'Careers', href: '/careers' },
             { name: 'Blog', href: '/blog' },
         ],
         resources: [

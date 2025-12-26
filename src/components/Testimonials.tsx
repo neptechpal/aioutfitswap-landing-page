@@ -107,7 +107,7 @@ const Testimonials: React.FC = () => {
 
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                    {testimonialsData.map((testimonial, index) => (
+                    {testimonialsData.map((testimonial: TestimonialProps, index: number) => (
                         <TestimonialCard key={index} {...testimonial} />
                     ))}
                 </div>

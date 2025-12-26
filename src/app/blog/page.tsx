@@ -1,96 +1,151 @@
-import { blogPosts } from "@/data/post";
+import { fetchFromBMS } from "@/lib/blog";
 import BlogCard from "@/components/BlogCard";
+import { BlogPost } from "@/types/blog";
 import Link from "next/link";
-import { LayoutGrid, ArrowRight } from "lucide-react";
+import { Tag, LayoutGrid, CheckCircle2, FolderOpen } from "lucide-react";
 
-export default function BlogPage() {
 
-  const categories = Array.from(
-    new Map(blogPosts.map((p) => [p.category.slug, p.category])).values()
-  );
+const slugify = (text: string) => 
+  text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-  const categoryCounts = blogPosts.reduce((acc, post) => {
-    acc[post.category.slug] = (acc[post.category.slug] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+
+  const { category: activeSlug } = await searchParams;
+  const posts: BlogPost[] = await fetchFromBMS();
+
+
+  const categoryCounts = new Map<string, number>();
+  
+  posts.forEach((post) => {
+    const name = post.category_name || "General";
+    categoryCounts.set(name, (categoryCounts.get(name) || 0) + 1);
+  });
+
+  const uniqueCategories = Array.from(categoryCounts.keys()).sort();
+
+ 
+  const filteredPosts = activeSlug
+    ? posts.filter((post) => slugify(post.category_name || "General") === activeSlug)
+    : posts;
+
+ 
+  const activeCategoryName = activeSlug 
+    ? Array.from(categoryCounts.keys()).find(name => slugify(name) === activeSlug) 
+    : "All Stories";
 
   return (
-    <section className="bg-rose-100 min-h-screen py-12 lg:py-20">
-      <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
+    <main className="min-h-screen bg-[#fafafa] py-12 md:py-16">
+      <section className="max-w-7xl mx-auto px-6">
         
-      
-        <div className="flex flex-col lg:flex-row gap-16">
+   
+        <header className="mb-12">
+          <div className="flex items-center gap-3 mb-3">
+            
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-[#002966] tracking-tight mb-4">
+            {activeCategoryName}
+          </h1>
+         
+        </header>
+
+        <div className="flex flex-col lg:flex-row gap-12">
           
       
-          <main className="lg:w-3/4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-16">
-              {blogPosts.map((post) => (
-                <article key={post.slug} className="group cursor-pointer">
-            
-                  <div className="transition-all duration-500 group-hover:-translate-y-3">
-                    <BlogCard post={post} />
-                  </div>
-                </article>
-              ))}
-            </div>
-          </main>
+          <div className="lg:w-3/4 order-2 lg:order-1">
+            {filteredPosts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {filteredPosts.map((post) => (
+                  <BlogCard key={post.id} post={post} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 shadow-sm">
+                <h2 className="text-2xl font-black text-slate-800">No stories found</h2>
+                <Link href="/blog" className="mt-4 inline-block text-rose-500 font-bold hover:underline">
+                  Clear all filters
+                </Link>
+              </div>
+            )}
+          </div>
 
-          <aside className="lg:w-1/4">
-            <div className="sticky top-32 space-y-8">
-              
-            
-              <div className="bg-white p-10 rounded-[3rem] shadow-[0_25px_60px_rgba(0,0,0,0.03)] border border-rose-50">
-                <h3 className="text-2xl font-black text-[#002966] mb-8 tracking-tight">
-                  Discover<span className="text-rose-500 text-3xl">.</span>
-                </h3>
-                
-                <nav className="space-y-2">
-                  <Link 
-                    href="/blog" 
-                    className="flex items-center justify-between p-4 rounded-2xl bg-[#002966] text-white shadow-xl shadow-blue-900/20 group transition-all"
+       
+          <aside className="lg:w-1/4 order-1 lg:order-2">
+            <div className="sticky top-10">
+              <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2 mb-8">
+                  <Tag size={18} className="text-rose-500" />
+                  <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">
+                    Categories
+                  </h2>
+                </div>
+
+                <nav className="flex flex-col gap-3">
+                 
+                  <Link
+                    href="/blog"
+                    className={`group flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-bold transition-all border ${
+                      !activeSlug 
+                        ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-200" 
+                        : "bg-slate-50 text-slate-600 border-transparent hover:bg-slate-100"
+                    }`}
                   >
-                    <span className="font-bold">All Insights</span>
-                    <span className="bg-white/20 text-[10px] px-2 py-1 rounded-md font-bold">{blogPosts.length}</span>
+                    <span className="flex items-center gap-2">
+                      <LayoutGrid size={16} /> All Stories
+                    </span>
+                    <span className={`text-[10px] px-2 py-1 rounded-full ${!activeSlug ? 'bg-white/20' : 'bg-slate-200 text-slate-500'}`}>
+                      {posts.length}
+                    </span>
                   </Link>
 
-                  {categories.map((cat) => (
-                    <Link 
-                      key={cat.slug}
-                      href={`/category/${cat.slug}`}
-                      className="flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-rose-50 hover:text-rose-500 transition-all duration-300 group"
-                    >
-                      <span className="font-bold">{cat.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-300 font-bold group-hover:text-rose-300 transition-colors">
-                            {categoryCounts[cat.slug] || 0}
-                        </span>
-                        <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
-                      </div>
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-
-            
-              <div className="relative group overflow-hidden bg-[#002966] p-10 rounded-[3rem] text-white shadow-2xl">
-                <div className="relative z-10">
-                  <p className="text-rose-400 font-black text-[10px] uppercase tracking-widest mb-2">Early Access</p>
-                  <h4 className="text-2xl font-bold leading-tight mb-6">Experience the AI Stylist App.</h4>
-                  <button className="w-full bg-white text-[#002966] py-4 rounded-2xl font-black text-sm hover:bg-rose-500 hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-xl">
-                    Download Now
-                  </button>
-                </div>
                 
-           
-                <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/10 rounded-full -ml-12 -mb-12 blur-2xl"></div>
-              </div>
+                  {uniqueCategories.map((catName) => {
+                    const slug = slugify(catName);
+                    const count = categoryCounts.get(catName);
+                    const isActive = activeSlug === slug;
 
+                    return (
+                      <Link
+                        key={slug}
+                        href={`/blog?category=${slug}`}
+                        className={`group flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-bold transition-all border ${
+                          isActive 
+                            ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-200" 
+                            : "bg-white text-slate-600 border-slate-100 hover:border-rose-200 hover:text-rose-500 hover:bg-rose-50/50"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          {isActive && <CheckCircle2 size={14} />}
+                          {catName}
+                        </span>
+                        
+                       
+                        <span className={`text-[10px] px-2.5 py-1 rounded-lg transition-colors ${
+                          isActive 
+                            ? 'bg-white/20 text-white' 
+                            : 'bg-slate-100 text-slate-400 group-hover:bg-rose-100 group-hover:text-rose-600'
+                        }`}>
+                          {count}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </nav>
+
+                <div className="mt-8 pt-8 border-t border-slate-50 text-center">
+                   <p className="text-[11px] text-slate-400 font-medium">
+                     Select a topic to filter results
+                   </p>
+                </div>
+              </div>
             </div>
           </aside>
 
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
   );
 }

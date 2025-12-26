@@ -1,24 +1,40 @@
 import Link from "next/link";
+import { BlogPost } from "@/types/blog";
 
-export default function BlogCard({ post }: { post: any }) {
+export default function BlogCard({ post }: { post: BlogPost }) {
+  const postIdentifier = post.slug || post.id.toString();
+  const BASE_URL = "https://bms.neptechpal.com.np"; 
+  const imageUrl = post.image 
+    ? (post.image.startsWith('http') ? post.image : `${BASE_URL}${post.image}`)
+    : "/placeholder-blog.webp";
+
   return (
-    <Link href={`/blog/${post.slug}`}>
-      <div className="rounded-2xl overflow-hidden bg-[#111114] border border-gray-800 hover:border-gray-600 transition-shadow shadow-lg hover:shadow-xl cursor-pointer group transform hover:-translate-y-1">
-        <img
-          src={post.image}
-          alt={post.title}
-          className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-105 transition-all duration-500"
+    <Link 
+      href={`/blog/${postIdentifier}`} 
+      className="group bg-white rounded-[2.5rem] block overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100"
+    >
+      <div className="relative h-64 overflow-hidden bg-gray-100">
+        <img 
+          src={imageUrl} 
+          alt={post.title} 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
         />
-        <div className="p-4 sm:p-5 ">
-          <p className="text-purple-400 text-xs sm:text-sm font-semibold uppercase tracking-wide">
-            {post.category.name}
-          </p>
-          <h3 className=" sm:text-lg md:text-xl font-semibold mt-2 text-purple-400 ">
-            {post.title}
-          </h3>
-          <p className="text-gray-400 text-xs sm:text-sm mt-2 line-clamp-3">
-            {post.desc}
-          </p>
+        <div className="absolute top-4 left-4 z-20">
+          <span className="bg-white/90 backdrop-blur-md text-rose-600 text-[10px] font-black uppercase px-4 py-2 rounded-full">
+            {post.category_name || "Style"}
+          </span>
+        </div>
+      </div>
+
+      <div className="p-8">
+        <span className="text-slate-400 text-[11px] font-bold">
+          {new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
+        <h3 className="text-2xl font-black text-slate-800 mt-2 leading-tight group-hover:text-rose-500 transition-colors">
+          {post.title}
+        </h3>
+        <div className="mt-6 flex items-center text-rose-500 font-black text-xs uppercase">
+          View Story →
         </div>
       </div>
     </Link>
