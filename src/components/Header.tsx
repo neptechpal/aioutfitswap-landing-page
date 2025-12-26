@@ -19,22 +19,7 @@ const Header: React.FC = () => {
     const pathname = usePathname();
     const { openAlert } = useAlert(); 
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                setIsLoading(true);
-                const res = await fetch("/api/blog-categories"); 
-                if (!res.ok) throw new Error("Proxy failed");
-                const data = await res.json();
-                if (Array.isArray(data)) setCategories(data);
-            } catch (error) {
-                console.error("Header fetch failed:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchCategories();
-    }, []);
+  
 
     const getLinkClasses = (href: string) => {
         const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
